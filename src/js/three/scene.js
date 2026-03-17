@@ -23,8 +23,8 @@ export function createScene(container) {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 10, 14);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 12, 16);
+    camera.lookAt(0, 1, 0);
 
     // 渲染器
     const renderer = new THREE.WebGLRenderer({
