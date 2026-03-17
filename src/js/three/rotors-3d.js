@@ -40,41 +40,11 @@ export class Rotors3D {
             const shellMaterial = createMetalMaterial();
             const shell = new THREE.Mesh(shellGeometry, shellMaterial);
             shell.rotation.z = Math.PI / 2; // 水平放置
-            shell.castShadow = true;
             rotorGroup.add(shell);
 
-            // 轉子凹槽紋理（裝飾環）
-            for (let j = -2; j <= 2; j++) {
-                const grooveGeometry = new THREE.TorusGeometry(
-                    shellRadius + 0.01, 0.015, 8, 32
-                );
-                const grooveMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x5a5045,
-                    metalness: 0.9,
-                    roughness: 0.2,
-                });
-                const groove = new THREE.Mesh(grooveGeometry, grooveMaterial);
-                groove.rotation.y = Math.PI / 2;
-                groove.position.x = j * 0.25;
-                rotorGroup.add(groove);
-            }
-
-            // 字母視窗框
+            // 字母顯示面板（使用 Plane + Canvas Texture）
             const windowWidth = 0.6;
             const windowHeight = 0.5;
-            const windowFrameGeometry = new THREE.BoxGeometry(
-                windowWidth + 0.1, 0.05, windowHeight + 0.1
-            );
-            const windowFrameMaterial = new THREE.MeshStandardMaterial({
-                color: 0x3a3025,
-                metalness: 0.6,
-                roughness: 0.4,
-            });
-            const windowFrame = new THREE.Mesh(windowFrameGeometry, windowFrameMaterial);
-            windowFrame.position.y = shellRadius + 0.02;
-            rotorGroup.add(windowFrame);
-
-            // 字母顯示面板（使用 Plane + Canvas Texture）
             const displayGeometry = new THREE.PlaneGeometry(windowWidth, windowHeight);
             const displayCanvas = this._createLetterCanvas('A');
             const displayTexture = new THREE.CanvasTexture(displayCanvas);

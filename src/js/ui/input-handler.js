@@ -38,6 +38,8 @@ export class InputHandler {
             // 忽略在輸入框中的按鍵
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
             if (e.repeat) return;
+            // 忽略快捷鍵組合（Ctrl、Alt、Meta）
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
 
             const letter = e.key.toUpperCase();
             if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {
@@ -48,6 +50,7 @@ export class InputHandler {
 
         document.addEventListener('keyup', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
 
             const letter = e.key.toUpperCase();
             if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {

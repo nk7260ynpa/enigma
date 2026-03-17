@@ -51,8 +51,6 @@ export class Keyboard3D {
                 // 按鍵本體
                 const keyMaterial = createBakeliteMaterial();
                 const keyMesh = new THREE.Mesh(keyGeometry, keyMaterial);
-                keyMesh.castShadow = true;
-                keyMesh.receiveShadow = true;
                 keyGroup.add(keyMesh);
 
                 // 按鍵上的字母（使用 Sprite）
@@ -65,24 +63,13 @@ export class Keyboard3D {
                 const textMaterial = new THREE.SpriteMaterial({
                     map: textTexture,
                     transparent: true,
+                    depthTest: false,
                 });
                 const textSprite = new THREE.Sprite(textMaterial);
                 textSprite.scale.set(0.45, 0.45, 1);
-                textSprite.position.y = keyHeight / 2 + 0.01;
-                textSprite.renderOrder = 1;
+                textSprite.position.y = keyHeight / 2 + 0.15;
+                textSprite.renderOrder = 10;
                 keyGroup.add(textSprite);
-
-                // 按鍵金屬邊框
-                const rimGeometry = new THREE.TorusGeometry(keyRadius, 0.03, 8, 24);
-                const rimMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x6a5a40,
-                    metalness: 0.7,
-                    roughness: 0.4,
-                });
-                const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-                rim.rotation.x = -Math.PI / 2;
-                rim.position.y = keyHeight / 2;
-                keyGroup.add(rim);
 
                 // 定位
                 const x = startX + colIndex * keySpacingX;

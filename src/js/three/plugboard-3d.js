@@ -40,7 +40,7 @@ export class Plugboard3D {
         const innerGeometry = new THREE.CylinderGeometry(
             socketRadius * 0.6, socketRadius * 0.6, 0.16, 12
         );
-        const innerMaterial = new THREE.MeshStandardMaterial({
+        const innerMaterial = new THREE.MeshBasicMaterial({
             color: 0x1a1410,
             roughness: 0.8,
             metalness: 0.1,
@@ -164,7 +164,7 @@ export class Plugboard3D {
         socketB.isPaired = true;
 
         // 改變插孔顏色表示已配對
-        socketA.mesh.material = new THREE.MeshStandardMaterial({
+        socketA.mesh.material = new THREE.MeshBasicMaterial({
             color: 0xc9a84c,
             metalness: 0.8,
             roughness: 0.3,
@@ -253,7 +253,6 @@ export class Plugboard3D {
         const colors = [0xc9a84c, 0x8b6914, 0xa05a2c, 0x6b4423];
         const color = colors[Math.floor(Math.random() * colors.length)];
         const cableMesh = new THREE.Mesh(tubeGeometry, createCableMaterial(color));
-        cableMesh.castShadow = true;
 
         this.group.add(cableMesh);
         this.cables[key] = cableMesh;
@@ -274,7 +273,7 @@ export class Plugboard3D {
         if (!socket) return;
 
         if (highlight) {
-            socket.mesh.material = new THREE.MeshStandardMaterial({
+            socket.mesh.material = new THREE.MeshBasicMaterial({
                 color: 0xffdd44,
                 metalness: 0.8,
                 roughness: 0.2,

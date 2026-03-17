@@ -18,17 +18,16 @@ export class EnigmaModel {
         this.scene = scene;
         this.mainGroup = new THREE.Group();
 
-        // 建立各組件
         this._buildBody();
         this._buildComponents();
 
-        this.mainGroup.position.y = -1.5;
+        this.mainGroup.position.y = 0;
+        this._addEdges();
         scene.add(this.mainGroup);
     }
 
     _buildBody() {
         const woodMat = createWoodMaterial();
-        const darkWoodMat = createDarkWoodMaterial();
 
         // 主機身底座
         const baseWidth = 10;
@@ -37,75 +36,25 @@ export class EnigmaModel {
         const baseGeometry = new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth);
         const base = new THREE.Mesh(baseGeometry, woodMat);
         base.position.y = baseHeight / 2;
-        base.castShadow = true;
-        base.receiveShadow = true;
         this.mainGroup.add(base);
-
-        // 底座邊框裝飾
-        const edgeGeometry = new THREE.BoxGeometry(
-            baseWidth + 0.1, 0.15, baseDepth + 0.1
-        );
-        const edge = new THREE.Mesh(edgeGeometry, darkWoodMat);
-        edge.position.y = 0.08;
-        edge.castShadow = true;
-        this.mainGroup.add(edge);
-
-        // 頂部邊框
-        const topEdge = new THREE.Mesh(edgeGeometry, darkWoodMat);
-        topEdge.position.y = baseHeight + 0.08;
-        this.mainGroup.add(topEdge);
-
-        // 鍵盤區域面板（稍微傾斜）
-        const keyPanelGeometry = new THREE.BoxGeometry(baseWidth - 0.4, 0.15, 3.2);
-        const keyPanel = new THREE.Mesh(keyPanelGeometry, createPanelMaterial());
-        keyPanel.position.set(0, baseHeight + 0.08, 2.2);
-        keyPanel.rotation.x = -0.05; // 輕微傾斜
-        keyPanel.receiveShadow = true;
-        this.mainGroup.add(keyPanel);
-
-        // 燈板區域面板
-        const lampPanelGeometry = new THREE.BoxGeometry(baseWidth - 0.4, 0.15, 2.8);
-        const lampPanel = new THREE.Mesh(lampPanelGeometry, createPanelMaterial());
-        lampPanel.position.set(0, baseHeight + 0.08, -1.2);
-        lampPanel.receiveShadow = true;
-        this.mainGroup.add(lampPanel);
 
         // 轉子區域外殼
         const rotorHousingGeometry = new THREE.BoxGeometry(7, 2.2, 2.5);
         const rotorHousing = new THREE.Mesh(rotorHousingGeometry, woodMat);
         rotorHousing.position.set(0, baseHeight + 1.1, -3.8);
-        rotorHousing.castShadow = true;
         this.mainGroup.add(rotorHousing);
 
         // 轉子視窗頂蓋（金屬）
         const rotorCoverGeometry = new THREE.BoxGeometry(7.2, 0.08, 2.7);
         const rotorCover = new THREE.Mesh(rotorCoverGeometry, createMetalMaterial());
         rotorCover.position.set(0, baseHeight + 2.24, -3.8);
-        rotorCover.castShadow = true;
         this.mainGroup.add(rotorCover);
 
         // 接線板前蓋板
         const plugPanelGeometry = new THREE.BoxGeometry(baseWidth - 0.4, 2.0, 0.15);
-        const plugPanel = new THREE.Mesh(plugPanelGeometry, darkWoodMat);
+        const plugPanel = new THREE.Mesh(plugPanelGeometry, createDarkWoodMaterial());
         plugPanel.position.set(0, baseHeight + 1.0, baseDepth / 2 - 0.15);
-        plugPanel.castShadow = true;
         this.mainGroup.add(plugPanel);
-
-        // 四個角的金屬裝飾
-        const cornerGeometry = new THREE.CylinderGeometry(0.15, 0.15, baseHeight + 0.3, 8);
-        const cornerMat = createMetalMaterial();
-        const corners = [
-            [-baseWidth / 2 + 0.2, baseHeight / 2, -baseDepth / 2 + 0.2],
-            [baseWidth / 2 - 0.2, baseHeight / 2, -baseDepth / 2 + 0.2],
-            [-baseWidth / 2 + 0.2, baseHeight / 2, baseDepth / 2 - 0.2],
-            [baseWidth / 2 - 0.2, baseHeight / 2, baseDepth / 2 - 0.2],
-        ];
-        corners.forEach(([x, y, z]) => {
-            const corner = new THREE.Mesh(cornerGeometry, cornerMat);
-            corner.position.set(x, y, z);
-            corner.castShadow = true;
-            this.mainGroup.add(corner);
-        });
     }
 
     _buildComponents() {
@@ -134,6 +83,17 @@ export class EnigmaModel {
             this.mainGroup,
             new THREE.Vector3(0, baseHeight + 1.0, 5.6)
         );
+    }
+
+    _addEdges() {
+        const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.mainGroup.traverse((obj) => {
+            if (obj.isMesh && obj.geometry) {
+                const edges = new THREE.EdgesGeometry(obj.geometry, 15);
+                const line = new THREE.LineSegments(edges, edgeMaterial);
+                obj.add(line);
+            }
+        });
     }
 
     /**
