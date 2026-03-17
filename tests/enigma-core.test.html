@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Enigma Machine 核心邏輯測試</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #e0d5c1; }
+        .pass { color: #4caf50; }
+        .fail { color: #f44336; }
+        .section { margin-top: 20px; font-size: 18px; color: #c9a84c; border-bottom: 1px solid #3d3529; padding-bottom: 4px; }
+        .result { margin: 4px 0 4px 16px; font-size: 14px; }
+        #summary { margin-top: 30px; font-size: 16px; padding: 12px; border: 1px solid #3d3529; }
+    </style>
+</head>
+<body>
+    <h1>Enigma Machine 核心邏輯測試</h1>
+    <div id="output"></div>
+    <div id="summary"></div>
+
+    <script type="module">
+        import { Rotor } from '../src/js/enigma/rotor.js';
+        import { Reflector } from '../src/js/enigma/reflector.js';
+        import { Plugboard } from '../src/js/enigma/plugboard.js';
+        import { EnigmaMachine } from '../src/js/enigma/enigma-machine.js';
+        import { letterToIndex, indexToLetter } from '../src/js/enigma/constants.js';
+
+        const output = document.getElementById('output');
+        const summary = document.getElementById('summary');
+        let passed = 0;
+        let failed = 0;
+
+        function section(name) {
+            const el = document.createElement('div');
+            el.className = 'section';
+            el.textContent = name;
+            output.appendChild(el);
+        }
+
+        function assert(condition, message) {
+            const el = document.createElement('div');
+            el.className = 'result';
+            if (condition) {
+                el.innerHTML = `<span class="pass">✓ PASS</span> ${message}`;
+                passed++;
+            } else {
+                el.innerHTML = `<span class="fail">✗ FAIL</span> ${message}`;
+                failed++;
+            }
+            output.appendChild(el);
+        }
+
+        function assertEqual(actual, expected, message) {
+            assert(actual === expected, `${message} (預期: ${expected}, 實際: ${actual})`);
+        }
+
+        // ===== 測試 letterToIndex / indexToLetter =====
+        section('工具函式測試');
+        assertEqual(letterToIndex('A'), 0, 'A → 0');
+        assertEqual(letterToIndex('Z'), 25, 'Z → 25');
+        assertEqual(indexToLetter(0), 'A', '0 → A');
+        assertEqual(indexToLetter(25), 'Z', '25 → Z');
+
+        // ===== 測試轉子 =====
+        section('轉子測試');
+
+        // 轉子 I，位置 A(0)，環設定 0
+        const rotor1 = new Rotor('I', 0, 0);
+        // A(0) 正向通過轉子 I → E(4)
+        assertEqual(rotor1.forward(0), 4, '轉子 I 正向: A → E');
+        // E(4) 反向通過轉子 I → A(0)（反向映射）
+        assertEqual(rotor1.backward(4), 0, '轉子 I 反向: E → A');
+
+        // 測試正反向一致性
+        for (let i = 0; i < 26; i++) {
+            const fwd = rotor1.forward(i);
+            const bwd = rotor1.backward(fwd);
+            assert(bwd === i, `轉子 I 正反向一致性: ${indexToLetter(i)} → ${indexToLetter(fwd)} → ${indexToLetter(bwd)}`);
+        }
+
+        // 測試步進
+        const rotor2 = new Rotor('I', 0, 0);
+        rotor2.step();
+        assertEqual(rotor2.position, 1, '轉子步進: 0 → 1');
+        assertEqual(rotor2.getDisplayLetter(), 'B', '步進後顯示: B');
+
+        // 測試缺口
+        const rotorNotch = new Rotor('I', 0, 16); // Q = 16
+        assert(rotorNotch.isAtNotch(), '轉子 I 在 Q(16) 位置應為缺口');
+        const rotorNoNotch = new Rotor('I', 0, 15);
+        assert(!rotorNoNotch.isAtNotch(), '轉子 I 在 P(15) 位置不應為缺口');
+
+        // ===== 測試反射器 =====
+        section('反射器測試');
+
+        const reflectorB = new Reflector('UKW-B');
+        // UKW-B: A→Y
+        assertEqual(reflectorB.reflect(0), 24, 'UKW-B: A → Y');
+        // 自反性：Y→A
+        assertEqual(reflectorB.reflect(24), 0, 'UKW-B: Y → A（自反性）');
+
+        // 所有反射都是配對的
+        for (let i = 0; i < 26; i++) {
+            const reflected = reflectorB.reflect(i);
+            assert(reflected !== i, `UKW-B: ${indexToLetter(i)} 不應映射到自己`);
+            assertEqual(reflectorB.reflect(reflected), i,
+                `UKW-B 自反性: ${indexToLetter(i)} ↔ ${indexToLetter(reflected)}`);
+        }
+
+        // ===== 測試接線板 =====
+        section('接線板測試');
+
+        const plugboard = new Plugboard();
+        assert(plugboard.addPair('A', 'B'), '新增配對 A-B 成功');
+        assertEqual(plugboard.swap(0), 1, '接線板: A → B');
+        assertEqual(plugboard.swap(1), 0, '接線板: B → A');
+        assertEqual(plugboard.swap(2), 2, '接線板: C → C（無配對）');
+
+        // 不能重複配對
+        assert(!plugboard.addPair('A', 'C'), 'A 已被使用，不能再配對');
+        assert(!plugboard.addPair('D', 'D'), '不能自己配對自己');
+
+        // 移除配對
+        plugboard.removePair('A');
+        assertEqual(plugboard.swap(0), 0, '移除後 A → A');
+
+        // ===== 測試完整加密 =====
+        section('完整加密測試');
+
+        // 經典測試：轉子 I-II-III，反射器 UKW-B，全部設為 A，無接線板
+        // 輸入 AAAAA 應得到 BDZGO
+        const machine1 = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+        assertEqual(machine1.encryptText('AAAAA'), 'BDZGO',
+            '經典測試: I-II-III, UKW-B, AAA, AAAAA → BDZGO');
+
+        // 自反性測試：加密結果再用相同設定加密應回到原文
+        const machine2a = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+        const ciphertext = machine2a.encryptText('HELLOWORLD');
+
+        const machine2b = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+        const decrypted = machine2b.encryptText(ciphertext);
+        assertEqual(decrypted, 'HELLOWORLD',
+            `自反性: HELLOWORLD → ${ciphertext} → ${decrypted}`);
+
+        // 接線板測試
+        const machine3 = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [['A', 'B'], ['C', 'D']],
+        });
+        const cipher3 = machine3.encryptText('AAAA');
+
+        const machine3b = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [['A', 'B'], ['C', 'D']],
+        });
+        assertEqual(machine3b.encryptText(cipher3), 'AAAA',
+            `接線板自反性: AAAA → ${cipher3} → AAAA`);
+
+        // Ring Setting 測試
+        const machine4 = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [1, 1, 1],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+        const cipher4 = machine4.encryptText('AAAAA');
+        // 確認 ring setting 改變結果
+        assert(cipher4 !== 'BDZGO',
+            `Ring Setting [1,1,1] 產生不同結果: ${cipher4}`);
+
+        // Ring Setting 自反性
+        const machine4b = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [1, 1, 1],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+        assertEqual(machine4b.encryptText(cipher4), 'AAAAA',
+            'Ring Setting 自反性');
+
+        // ===== 雙步進測試 =====
+        section('雙步進機制測試');
+
+        // 設定右轉子在缺口位置前一步，中間轉子在缺口位置
+        // 轉子 III 缺口在 V(21)，轉子 II 缺口在 E(4)
+        const machine5 = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 4, 21], // 左=A, 中=E(缺口), 右=V(缺口)
+            plugboardPairs: [],
+        });
+
+        // 按一次鍵：右轉子在缺口 V → 中間步進；中間在缺口 E → 左步進 + 中間雙步進
+        // 結果：右 V→W, 中 E→G(步進兩次), 左 A→B
+        machine5.encryptLetter('A');
+        const pos5 = machine5.getRotorPositions();
+        assertEqual(pos5[0], 1, '雙步進: 左轉子 A→B');
+        assertEqual(pos5[1], 6, '雙步進: 中間轉子 E→G（步進兩次）');
+        assertEqual(pos5[2], 22, '雙步進: 右轉子 V→W');
+
+        // 不同轉子組合測試
+        section('不同轉子組合測試');
+
+        const machine6 = new EnigmaMachine({
+            rotors: ['IV', 'V', 'II'],
+            reflector: 'UKW-C',
+            ringSettings: [5, 10, 15],
+            startPositions: [10, 20, 5],
+            plugboardPairs: [['A', 'Z'], ['B', 'Y']],
+        });
+        const cipher6 = machine6.encryptText('ENIGMA');
+
+        const machine6b = new EnigmaMachine({
+            rotors: ['IV', 'V', 'II'],
+            reflector: 'UKW-C',
+            ringSettings: [5, 10, 15],
+            startPositions: [10, 20, 5],
+            plugboardPairs: [['A', 'Z'], ['B', 'Y']],
+        });
+        assertEqual(machine6b.encryptText(cipher6), 'ENIGMA',
+            `轉子 IV-V-II + UKW-C 自反性: ENIGMA → ${cipher6} → ENIGMA`);
+
+        // 字母不會加密成自己（Enigma 特性）
+        section('Enigma 特性測試');
+
+        const machine7 = new EnigmaMachine({
+            rotors: ['I', 'II', 'III'],
+            reflector: 'UKW-B',
+            ringSettings: [0, 0, 0],
+            startPositions: [0, 0, 0],
+            plugboardPairs: [],
+        });
+
+        let selfEncrypted = false;
+        for (let i = 0; i < 26; i++) {
+            const letter = indexToLetter(i);
+            // 每次測試需要新的 machine 避免轉子步進影響
+            const m = new EnigmaMachine({
+                rotors: ['I', 'II', 'III'],
+                reflector: 'UKW-B',
+                ringSettings: [0, 0, 0],
+                startPositions: [0, 0, 0],
+                plugboardPairs: [],
+            });
+            const result = m.encryptLetter(letter);
+            if (result === letter) {
+                selfEncrypted = true;
+                break;
+            }
+        }
+        assert(!selfEncrypted, '初始位置 AAA 下，沒有字母加密成自己');
+
+        // ===== 顯示摘要 =====
+        const total = passed + failed;
+        summary.innerHTML = `
+            <strong>測試結果：${total} 項測試</strong><br>
+            <span class="pass">✓ 通過: ${passed}</span> |
+            <span class="fail">✗ 失敗: ${failed}</span>
+        `;
+        summary.style.borderColor = failed === 0 ? '#4caf50' : '#f44336';
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma Machine 模擬器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="app">
+        <!-- 3D 場景容器 -->
+        <div id="canvas-container"></div>
+
+        <!-- 標題 -->
+        <div id="title-bar">
+            <h1>ENIGMA MACHINE</h1>
+            <p>Wehrmacht Enigma I 模擬器</p>
+        </div>
+
+        <!-- 設定面板 -->
+        <div id="controls-panel">
+            <div class="panel-header">
+                <h2>設定</h2>
+                <button id="toggle-panel" title="收合面板">◀</button>
+            </div>
+            <div class="panel-body">
+                <!-- 反射器 -->
+                <div class="control-group">
+                    <label>反射器</label>
+                    <select id="reflector-select">
+                        <option value="UKW-B" selected>UKW-B</option>
+                        <option value="UKW-C">UKW-C</option>
+                    </select>
+                </div>
+
+                <!-- 轉子選擇 -->
+                <div class="control-group">
+                    <label>轉子 (左 / 中 / 右)</label>
+                    <div class="rotor-selects">
+                        <select id="rotor-left-select">
+                            <option value="I" selected>I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                        </select>
+                        <select id="rotor-middle-select">
+                            <option value="I">I</option>
+                            <option value="II" selected>II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                        </select>
+                        <select id="rotor-right-select">
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III" selected>III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Ring Setting -->
+                <div class="control-group">
+                    <label>環設定 (Ringstellung)</label>
+                    <div class="ring-settings">
+                        <input type="number" id="ring-left" min="0" max="25" value="0">
+                        <input type="number" id="ring-middle" min="0" max="25" value="0">
+                        <input type="number" id="ring-right" min="0" max="25" value="0">
+                    </div>
+                </div>
+
+                <!-- 初始位置 -->
+                <div class="control-group">
+                    <label>初始位置 (Grundstellung)</label>
+                    <div class="start-positions">
+                        <input type="number" id="pos-left" min="0" max="25" value="0">
+                        <input type="number" id="pos-middle" min="0" max="25" value="0">
+                        <input type="number" id="pos-right" min="0" max="25" value="0">
+                    </div>
+                </div>
+
+                <!-- 接線板 -->
+                <div class="control-group">
+                    <label>接線板 (Steckerbrett)</label>
+                    <div id="plugboard-input">
+                        <input type="text" id="plug-pair" placeholder="輸入字母對，如 AB" maxlength="2">
+                        <button id="add-plug">新增</button>
+                    </div>
+                    <div id="plug-pairs-list"></div>
+                </div>
+
+                <!-- 操作按鈕 -->
+                <div class="control-group">
+                    <button id="apply-settings" class="btn-primary">套用設定</button>
+                    <button id="reset-positions" class="btn-secondary">重設位置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 輸入/輸出顯示 -->
+        <div id="display">
+            <div class="display-row">
+                <span class="display-label">輸入：</span>
+                <span id="input-text" class="display-text"></span>
+            </div>
+            <div class="display-row">
+                <span class="display-label">輸出：</span>
+                <span id="output-text" class="display-text"></span>
+            </div>
+            <button id="clear-display" title="清除">清除</button>
+        </div>
+
+        <!-- 操作提示 -->
+        <div id="hint">按鍵盤 A-Z 或點擊 3D 鍵盤開始加密</div>
+    </div>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

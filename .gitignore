@@ -1,0 +1,20 @@
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+CLAUDE.md
+
+# Node
+node_modules/
+
+# Docker
+.docker/

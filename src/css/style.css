@@ -1,0 +1,375 @@
+/* ===== 全域重設 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier Prime', monospace;
+    background: #1a1a1a;
+    color: #e0d5c1;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ===== 3D 場景容器 ===== */
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#canvas-container canvas {
+    display: block;
+}
+
+/* ===== 標題列 ===== */
+#title-bar {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#title-bar h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    letter-spacing: 8px;
+    color: #c9a84c;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+#title-bar p {
+    font-size: 12px;
+    color: #8a7d6b;
+    letter-spacing: 3px;
+    margin-top: 4px;
+}
+
+/* ===== 設定面板 ===== */
+#controls-panel {
+    position: absolute;
+    top: 80px;
+    right: 16px;
+    width: 280px;
+    background: rgba(30, 28, 24, 0.92);
+    border: 1px solid #3d3529;
+    border-radius: 8px;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    transition: transform 0.3s ease;
+}
+
+#controls-panel.collapsed {
+    transform: translateX(260px);
+}
+
+#controls-panel.collapsed .panel-body {
+    display: none;
+}
+
+#controls-panel.collapsed #toggle-panel {
+    transform: rotate(180deg);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #3d3529;
+}
+
+.panel-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    color: #c9a84c;
+    letter-spacing: 2px;
+}
+
+#toggle-panel {
+    background: none;
+    border: none;
+    color: #8a7d6b;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+#toggle-panel:hover {
+    color: #c9a84c;
+}
+
+.panel-body {
+    padding: 16px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.control-group {
+    margin-bottom: 16px;
+}
+
+.control-group label {
+    display: block;
+    font-size: 11px;
+    color: #8a7d6b;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.control-group select,
+.control-group input[type="number"],
+.control-group input[type="text"] {
+    background: #2a2620;
+    border: 1px solid #3d3529;
+    color: #e0d5c1;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    outline: none;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+    border-color: #c9a84c;
+}
+
+.rotor-selects,
+.ring-settings,
+.start-positions {
+    display: flex;
+    gap: 8px;
+}
+
+.rotor-selects select,
+.ring-settings input,
+.start-positions input {
+    flex: 1;
+    width: 0;
+}
+
+.ring-settings input,
+.start-positions input {
+    text-align: center;
+}
+
+/* 接線板 */
+#plugboard-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#plug-pair {
+    flex: 1;
+    text-transform: uppercase;
+}
+
+#add-plug {
+    background: #3d3529;
+    border: 1px solid #5a4f3f;
+    color: #c9a84c;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+}
+
+#add-plug:hover {
+    background: #5a4f3f;
+}
+
+#plug-pairs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.plug-pair-tag {
+    background: #3d3529;
+    border: 1px solid #5a4f3f;
+    color: #c9a84c;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.plug-pair-tag:hover {
+    background: #6b3030;
+    border-color: #8b4040;
+}
+
+/* 按鈕 */
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    background: #5a4420;
+    border: 1px solid #c9a84c;
+    color: #c9a84c;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #7a6430;
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid #3d3529;
+    color: #8a7d6b;
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #2a2620;
+}
+
+/* ===== 輸入/輸出顯示 ===== */
+#display {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 700px);
+    background: rgba(30, 28, 24, 0.92);
+    border: 1px solid #3d3529;
+    border-radius: 8px;
+    padding: 16px 20px;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+}
+
+.display-row {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.display-row:last-of-type {
+    margin-bottom: 0;
+}
+
+.display-label {
+    font-size: 11px;
+    color: #8a7d6b;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.display-text {
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: #c9a84c;
+    word-break: break-all;
+    min-height: 24px;
+}
+
+#clear-display {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: 1px solid #3d3529;
+    color: #8a7d6b;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+}
+
+#clear-display:hover {
+    color: #c9a84c;
+    border-color: #5a4f3f;
+}
+
+/* ===== 操作提示 ===== */
+#hint {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #5a4f3f;
+    letter-spacing: 1px;
+    z-index: 10;
+    pointer-events: none;
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ===== 滾動條 ===== */
+.panel-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.panel-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+    background: #3d3529;
+    border-radius: 2px;
+}
+
+/* ===== RWD ===== */
+@media (max-width: 768px) {
+    #controls-panel {
+        top: auto;
+        bottom: 140px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+        max-height: 40vh;
+    }
+
+    #controls-panel.collapsed {
+        transform: translateY(calc(100% - 44px));
+    }
+
+    #title-bar h1 {
+        font-size: 20px;
+        letter-spacing: 4px;
+    }
+
+    #display {
+        width: calc(100% - 16px);
+    }
+
+    .display-text {
+        font-size: 14px;
+        letter-spacing: 2px;
+    }
+}
