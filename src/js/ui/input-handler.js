@@ -40,7 +40,7 @@ export class InputHandler {
             if (e.repeat) return;
 
             const letter = e.key.toUpperCase();
-            if (letter >= 'A' && letter <= 'Z') {
+            if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {
                 e.preventDefault();
                 this._handleKeyPress(letter);
             }
@@ -50,7 +50,7 @@ export class InputHandler {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
             const letter = e.key.toUpperCase();
-            if (letter >= 'A' && letter <= 'Z') {
+            if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {
                 this._handleKeyRelease(letter);
             }
         });
