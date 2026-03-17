@@ -12,7 +12,7 @@ import { Display } from './ui/display.js';
 
 // 初始化 3D 場景
 const canvasContainer = document.getElementById('canvas-container');
-const { scene, camera, renderer, controls, animate } = createScene(canvasContainer);
+const { scene, camera, renderer, raycaster, animate } = createScene(canvasContainer);
 
 // 建立 3D 模型
 const enigmaModel = new EnigmaModel(scene);
@@ -26,6 +26,9 @@ let enigmaMachine = new EnigmaMachine({
     plugboardPairs: [],
 });
 
+// 初始化轉子顯示
+enigmaModel.rotors.updatePositions([0, 0, 0], false);
+
 // 建立顯示面板
 const display = new Display();
 
@@ -33,6 +36,15 @@ const display = new Display();
 const controlsPanel = new ControlsPanel((newConfig) => {
     enigmaMachine = new EnigmaMachine(newConfig);
     enigmaModel.updateFromConfig(newConfig);
+
+    // 同步接線板 3D 視覺化
+    enigmaModel.plugboard.clearAll();
+    if (newConfig.plugboardPairs) {
+        for (const [a, b] of newConfig.plugboardPairs) {
+            enigmaModel.plugboard.addPair(a, b);
+        }
+    }
+
     display.clear();
 });
 
@@ -42,6 +54,21 @@ const inputHandler = new InputHandler({
     enigmaModel,
     display,
     getEnigmaMachine: () => enigmaMachine,
+    camera,
+    raycaster,
+    domElement: renderer.domElement,
+});
+
+// 3D 接線板配對回呼 → 同步到設定面板
+enigmaModel.plugboard.onPair((letterA, letterB, isRemove) => {
+    if (isRemove) {
+        controlsPanel.removePlugPairExternal(letterA, letterB);
+    } else {
+        controlsPanel.addPlugPairExternal(letterA, letterB);
+    }
+    // 重新套用設定
+    const config = controlsPanel.getConfig();
+    enigmaMachine = new EnigmaMachine(config);
 });
 
 // 啟動渲染迴圈
