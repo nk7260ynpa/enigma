@@ -11,12 +11,21 @@ export class Display {
 
         this._inputText = '';
         this._outputText = '';
+        this._onClear = null;
 
         this._bindEvents();
     }
 
     _bindEvents() {
         this.clearBtn.addEventListener('click', () => this.clear());
+    }
+
+    /**
+     * 註冊清除時的回呼（用於重設機器狀態）
+     * @param {Function} callback
+     */
+    onClear(callback) {
+        this._onClear = callback;
     }
 
     /**
@@ -39,11 +48,13 @@ export class Display {
 
     /**
      * 清除所有文字
+     * @param {boolean} resetMachine - 是否同時重設機器狀態
      */
-    clear() {
+    clear(resetMachine = true) {
         this._inputText = '';
         this._outputText = '';
         this._render();
+        if (resetMachine && this._onClear) this._onClear();
     }
 
     /**

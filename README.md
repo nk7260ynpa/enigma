@@ -5,13 +5,7 @@
 
 ## 截圖
 
-### 完整介面
-
-![Enigma Machine 完整介面](screenshots/enigma-main.png)
-
-### 3D 模型
-
-![Enigma Machine 3D 模型](screenshots/enigma-3d-model.png)
+![Enigma Machine 介面](screenshots/enigma-main.png)
 
 ## 功能特色
 
@@ -142,8 +136,7 @@ enigma/
 │   └── nginx.conf                   # Nginx 設定
 ├── logs/                            # Log 存放目錄
 ├── screenshots/                     # 截圖目錄
-│   ├── enigma-main.png              # 完整介面截圖
-│   └── enigma-3d-model.png          # 3D 模型截圖
+│   └── enigma-main.png              # 介面截圖
 ├── src/                             # 前端原始碼
 │   ├── index.html                   # 主頁面
 │   ├── css/

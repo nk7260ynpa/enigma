@@ -45,7 +45,14 @@ const controlsPanel = new ControlsPanel((newConfig) => {
         }
     }
 
-    display.clear();
+    display.clear(false);
+});
+
+// 清除時重設機器狀態（保留設定）
+display.onClear(() => {
+    const config = controlsPanel.getConfig();
+    enigmaMachine = new EnigmaMachine(config);
+    enigmaModel.updateFromConfig(config);
 });
 
 // 建立輸入處理器
