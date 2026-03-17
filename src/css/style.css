@@ -253,14 +253,14 @@ body {
 /* ===== 輸入/輸出顯示 ===== */
 #display {
     position: absolute;
-    bottom: 16px;
+    bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(90%, 700px);
+    width: min(90%, 600px);
     background: rgba(30, 28, 24, 0.92);
     border: 1px solid #3d3529;
     border-radius: 8px;
-    padding: 16px 20px;
+    padding: 10px 16px;
     z-index: 20;
     backdrop-filter: blur(8px);
 }
@@ -314,7 +314,7 @@ body {
 /* ===== 操作提示 ===== */
 #hint {
     position: absolute;
-    bottom: 120px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 12px;

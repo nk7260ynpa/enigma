@@ -23,8 +23,8 @@ export function createScene(container) {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 12, 16);
-    camera.lookAt(0, 1, 0);
+    camera.position.set(0, 16, 14);
+    camera.lookAt(0, 0, 0);
 
     // 渲染器
     const renderer = new THREE.WebGLRenderer({
@@ -82,11 +82,11 @@ export function createScene(container) {
 
     // 軌道控制器
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 1, 0);
-    controls.maxPolarAngle = Math.PI / 2.1;
+    controls.target.set(0, 0, 0);
+    controls.maxPolarAngle = Math.PI / 2.5;
     controls.minPolarAngle = Math.PI / 8;
-    controls.minDistance = 8;
-    controls.maxDistance = 25;
+    controls.minDistance = 10;
+    controls.maxDistance = 30;
     controls.enablePan = false;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
